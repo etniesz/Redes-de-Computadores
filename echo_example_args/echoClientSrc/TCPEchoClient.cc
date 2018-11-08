@@ -21,14 +21,16 @@
 #include "checkArgs.h"
 #include <iostream>    // For cerr and cout
 #include <cstdlib>     // For atoi()
+#include <fstream>   // Librería para el manejo de archivos
+#include <stdlib.h>
 
-const uint32_t RCVBUFSIZE = 32;    // Size of receive buffer
+const uint32_t RCVBUFSIZE = 10000;    // Size of receive buffer
 
 int main(int argc, char *argv[]) {
 
 	checkArgs* argumentos = new checkArgs(argc, argv);
 
-	std::string servAddress;	
+	std::string servAddress;
 	std::string echoString;
 	std::string archivoSalida;
 	uint16_t    echoServPort;
@@ -38,13 +40,21 @@ int main(int argc, char *argv[]) {
 	echoServPort  = argumentos->getArgs().PORT;
 	archivoSalida = argumentos->getArgs().ARCHIVOSALIDA;
 	echoString    = argumentos->getArgs().DATA + "\nHost:"+servAddress;
-	
+
 
 	delete argumentos;
 
 	uint32_t echoStringLen = echoString.length();   // Determine input length
 
 	try {
+
+		// Se crea el archivo en donde se almacenará la información rescatada desde la página
+		std::ofstream archivoEscritura;
+		archivoEscritura.open(archivoSalida,std::ios::out);
+		if(archivoEscritura.fail()){
+			std::cout << "Error. No se pudo abrir el archivo";
+			exit(1);
+		}
 		// Establish connection with the echo server
 		TCPSocket sock(servAddress, echoServPort);
 
@@ -63,10 +73,12 @@ int main(int argc, char *argv[]) {
 				std::cerr << "Unable to read\n";
 				exit(EXIT_FAILURE);
 			}
+		archivoEscritura << echoBuffer;
 			totalBytesReceived += bytesReceived;     // Keep tally of total bytes
 			echoBuffer[bytesReceived] = '\0';        // Terminate the string!
 			std::cout << echoBuffer;                      // Print the echo buffer
 		}
+		archivoEscritura.close();
 		std::cout << std::endl;
 
 		// Destructor closes the socket
