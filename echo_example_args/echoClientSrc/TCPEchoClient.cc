@@ -22,7 +22,7 @@
 #include <iostream>    // For cerr and cout
 #include <cstdlib>     // For atoi()
 #include <fstream>   // Librería para el manejo de archivos
-#include <stdlib.h>
+#include <stdlib.h>  // Un mexicano me dijo que agregara esta librería
 
 const uint32_t RCVBUFSIZE = 10000;    // Size of receive buffer
 
